@@ -37,17 +37,17 @@ def is_wrapped(env: gym.Env, wrapper_class: Type[gym.Wrapper]) -> bool:
 
 
 def make_vec_env(
-    env_id: Union[str, Callable[..., gym.Env]],
-    n_envs: int = 1,
-    seed: Optional[int] = None,
-    start_index: int = 0,
-    monitor_dir: Optional[str] = None,
-    wrapper_class: Optional[Callable[[gym.Env], gym.Env]] = None,
-    env_kwargs: Optional[Dict[str, Any]] = None,
-    vec_env_cls: Optional[Type[Union[DummyVecEnv, SubprocVecEnv]]] = None,
-    vec_env_kwargs: Optional[Dict[str, Any]] = None,
-    monitor_kwargs: Optional[Dict[str, Any]] = None,
-    wrapper_kwargs: Optional[Dict[str, Any]] = None,
+        env_id: Union[str, Callable[..., gym.Env]],
+        n_envs: int = 1,
+        seed: Optional[int] = None,
+        start_index: int = 0,
+        monitor_dir: Optional[str] = None,
+        wrapper_class: Optional[Callable[[gym.Env], gym.Env]] = None,
+        env_kwargs: Optional[Dict[str, Any]] = None,
+        vec_env_cls: Optional[Type[Union[DummyVecEnv, SubprocVecEnv]]] = None,
+        vec_env_kwargs: Optional[Dict[str, Any]] = None,
+        monitor_kwargs: Optional[Dict[str, Any]] = None,
+        wrapper_kwargs: Optional[Dict[str, Any]] = None,
 ) -> VecEnv:
     """
     Create a wrapped, monitored ``VecEnv``.
@@ -105,10 +105,16 @@ def make_vec_env(
                 env.action_space.seed(seed + rank)
             # Wrap the env in a Monitor wrapper
             # to have additional training information
-            monitor_path = os.path.join(monitor_dir, str(rank)) if monitor_dir is not None else None
+            if monitor_dir == 'tbd':
+                dirname = env.output_dir
+                new_monitor_dir = './logs/' + dirname
+
+            else:
+                new_monitor_dir = monitor_dir
+            monitor_path = os.path.join(new_monitor_dir, str(rank)) if new_monitor_dir is not None else None
             # Create the monitor folder if needed
-            if monitor_path is not None and monitor_dir is not None:
-                os.makedirs(monitor_dir, exist_ok=True)
+            if monitor_path is not None and new_monitor_dir is not None:
+                os.makedirs(new_monitor_dir, exist_ok=True)
             env = Monitor(env, filename=monitor_path, **monitor_kwargs)
             # Optionally, wrap the environment with the provided wrapper
             if wrapper_class is not None:
@@ -129,16 +135,16 @@ def make_vec_env(
 
 
 def make_atari_env(
-    env_id: Union[str, Callable[..., gym.Env]],
-    n_envs: int = 1,
-    seed: Optional[int] = None,
-    start_index: int = 0,
-    monitor_dir: Optional[str] = None,
-    wrapper_kwargs: Optional[Dict[str, Any]] = None,
-    env_kwargs: Optional[Dict[str, Any]] = None,
-    vec_env_cls: Optional[Union[Type[DummyVecEnv], Type[SubprocVecEnv]]] = None,
-    vec_env_kwargs: Optional[Dict[str, Any]] = None,
-    monitor_kwargs: Optional[Dict[str, Any]] = None,
+        env_id: Union[str, Callable[..., gym.Env]],
+        n_envs: int = 1,
+        seed: Optional[int] = None,
+        start_index: int = 0,
+        monitor_dir: Optional[str] = None,
+        wrapper_kwargs: Optional[Dict[str, Any]] = None,
+        env_kwargs: Optional[Dict[str, Any]] = None,
+        vec_env_cls: Optional[Union[Type[DummyVecEnv], Type[SubprocVecEnv]]] = None,
+        vec_env_kwargs: Optional[Dict[str, Any]] = None,
+        monitor_kwargs: Optional[Dict[str, Any]] = None,
 ) -> VecEnv:
     """
     Create a wrapped, monitored VecEnv for Atari.

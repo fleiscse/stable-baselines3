@@ -85,6 +85,7 @@ def evaluate_policy(
     states = None
     episode_starts = np.ones((env.num_envs,), dtype=bool)
     while (episode_counts < episode_count_targets).any():
+        #TODO: hier einfügen, dass man seed hat, der dann pro iteratoin +=1 ist (in reset, wahrshceinlich über attribut)
         actions, states = model.predict(
             observations,  # type: ignore[arg-type]
             state=states,
